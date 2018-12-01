@@ -90,6 +90,8 @@ public class MessageBusImpl implements MessageBus {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	<T> void complete(Event<T> e, T result)
+	{}
 
 	
 
