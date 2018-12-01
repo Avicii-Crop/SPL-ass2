@@ -35,12 +35,14 @@ public class MessageBusImpl implements MessageBus {
 			robinPointer.put(type,eventsMap.get(type).iterator());
 		}
 		else{
-			eventsMap.get(type).addLast(p);
+			if(!eventsMap.get(type).contains(p))
+				eventsMap.get(type).addLast(p);
 		}
 	}
 
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
+		Pair p= msMap.get(m);
 		if (broadcastsMap.get(type) == null){
 			broadcastsMap.put(type,new LinkedList<>());
 			broadcastsMap.get(type).add(p);
@@ -54,15 +56,20 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void sendBroadcast(Broadcast b) {
-		LinkedList<MicroService> relevantMsList = broadcastsMap.get(b);
-
-
+		LinkedList<Pair> list = broadcastsMap.get(b);
+		for(Pair<MicroService, Queue<Pair<Message,Future>>> pair: list){
+			pair.getValue().add(new Pair(b,null));
+		}
 	}
 
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
-		// TODO Auto-generated method stub
-		return null;
+		Future<T> output=null;
+		if(eventsMap.get(e.getClass()) != null){
+			output = new Future<T>();
+
+		}
+		return output;
 	}
 
 	@Override
@@ -96,11 +103,16 @@ public class MessageBusImpl implements MessageBus {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	<T> void complete(Event<T> e, T result)
-	{}
 
-	private void nextInRobin(Class<? extends Event> type){
+	@Override
+	public <T> void complete(Event<T> e, T result){
 
+	}
+
+	private Pair nextInRobin(Class<? extends Event> type){
+		if(!robinPointer.get(type).hasNext())
+			robinPointer.replace(type,eventsMap.get(type).iterator());
+		return robinPointer.get(type).next();
 	}
 	
 
