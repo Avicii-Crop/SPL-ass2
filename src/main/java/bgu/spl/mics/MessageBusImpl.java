@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class MessageBusImpl implements MessageBus {
 	private static MessageBusImpl instance = null;
 
-	private Map<MicroService, Pair<MicroService, Queue<Message>>> msMap = new ConcurrentHashMap<>();
+	private Map<MicroService, Pair<MicroService, Queue<Pair<Message,Future>>>> msMap = new ConcurrentHashMap<>();
 	private Map<Class<? extends Event>, LinkedList<Pair>> eventsMap = new ConcurrentHashMap<>();
 	private Map<Class<? extends Event>, Iterator<Pair>> robinPointer = new ConcurrentHashMap<>();
 	private Map<Class<? extends Broadcast>, LinkedList<Pair>> broadcastsMap = new ConcurrentHashMap<>();
@@ -78,12 +78,16 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public void unregister(MicroService m) {
 
-		Pair<MicroService, Queue<Message>> pair=msMap.get(m);
+		Pair<MicroService, Queue<Pair<Message,Future>>> pair=msMap.get(m);
 		if(pair!= null) {
-			Queue<Message> q = pair.getValue();
-			Collection<LinkedList<Pair>> lists = eventsMap.values();
+			Queue<Pair<Message,Future>> q = pair.getValue();
+			Collection<LinkedList<Pair>> lists = eventsMap.values();	//Removing the ms pair from event list
 			for (LinkedList<Pair> list : lists)
 				list.remove(pair);
+			lists = broadcastsMap.values();								//Removing the ms pair from broadcast list
+			for (LinkedList<Pair> list : lists)
+				list.remove(pair);
+
 
 		}
 
@@ -101,6 +105,9 @@ public class MessageBusImpl implements MessageBus {
 
 	}
 
+	private void nextInRobin(Class<? extends Event> type){
+
+	}
 	
 
 }
