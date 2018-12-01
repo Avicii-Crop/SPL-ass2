@@ -35,6 +35,7 @@ public class MessageBusImpl implements MessageBus {
 			robinPointer.put(type,eventsMap.get(type).iterator());
 		}
 		else{
+			if(!eventsMap.get(type).contains(p))
 			eventsMap.get(type).addLast(p);
 		}
 	}
@@ -47,14 +48,15 @@ public class MessageBusImpl implements MessageBus {
 			broadcastsMap.get(type).add(p);
 		}
 		else {
-			broadcastsMap.get(type).add(p);
+			if(!broadcastsMap.get(type).contains(p))
+				broadcastsMap.get(type).add(p);
 		}
 
 	}
 
 	@Override
 	public void sendBroadcast(Broadcast b) {
-		LinkedList<MicroService> relevantMsList = broadcastsMap.get(b);
+		LinkedList<Pair> relevantMsList = broadcastsMap.get(b);
 		int x=6;
 
 
@@ -82,6 +84,7 @@ public class MessageBusImpl implements MessageBus {
 			Collection<LinkedList<Pair>> lists = eventsMap.values();
 			for (LinkedList<Pair> list : lists)
 				list.remove(pair);
+
 		}
 
 
