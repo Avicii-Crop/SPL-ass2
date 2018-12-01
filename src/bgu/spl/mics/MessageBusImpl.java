@@ -54,7 +54,7 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void sendBroadcast(Broadcast b) {
-		LinkedList  broadcastsMap.get(b);
+		LinkedList<MicroService> relevantMs broadcastsMap.get(b);
 
 
 	}
