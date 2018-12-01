@@ -13,10 +13,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class MessageBusImpl implements MessageBus {
 	private static MessageBusImpl instance = null;
 
-	Map<MicroService, Pair<MicroService, Queue<Message>>> msMap = new ConcurrentHashMap<>();
-	Map<Class<? extends Event>, LinkedList<Pair>> eventsMap = new ConcurrentHashMap<>();
-	Map<Class<? extends Event>, Iterator<Pair>> robinPointer = new ConcurrentHashMap<>();
-	Map<Class<? extends Broadcast>, LinkedList<MicroService>> broadcastsMap = new ConcurrentHashMap<>();
+	private Map<MicroService, Pair<MicroService, Queue<Message>>> msMap = new ConcurrentHashMap<>();
+	private Map<Class<? extends Event>, LinkedList<Pair>> eventsMap = new ConcurrentHashMap<>();
+	private Map<Class<? extends Event>, Iterator<Pair>> robinPointer = new ConcurrentHashMap<>();
+	private Map<Class<? extends Broadcast>, LinkedList<MicroService>> broadcastsMap = new ConcurrentHashMap<>();
 
 	private MessageBusImpl() { }
 
@@ -90,6 +90,8 @@ public class MessageBusImpl implements MessageBus {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	<T> void complete(Event<T> e, T result)
+	{}
 
 	
 

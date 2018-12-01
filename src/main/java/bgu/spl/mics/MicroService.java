@@ -23,7 +23,6 @@ public abstract class MicroService implements Runnable {
 
     private boolean terminated = false;
     private final String name;
-    private LinkedList<Event> subscribedBroadcasts = new LinkedList<>();
     MessageBusImpl bus = MessageBusImpl.getInstance();
 
     /**
