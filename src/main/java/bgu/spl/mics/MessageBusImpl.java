@@ -54,6 +54,12 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public void sendBroadcast(Broadcast b) {
 		LinkedList<MicroService> relevantMsList = broadcastsMap.get(b);
+		for (L:
+			 ) {
+			
+		} (relevantMsList:MicroService) {
+			
+		}
 
 
 	}
@@ -73,10 +79,9 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void unregister(MicroService m) {
-
-		Pair<MicroService, Queue<Event>> pair=msMap.get(m);
+		Pair<MicroService, Queue<Message>> pair=msMap.get(m);
 		if(pair!= null) {
-			Queue<Event> q = pair.getValue();
+			Queue<Message> q = pair.getValue();
 			Collection<LinkedList<Pair>> lists = eventsMap.values();
 			for (LinkedList<Pair> list : lists)
 				list.remove(pair);
