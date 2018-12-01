@@ -16,7 +16,7 @@ public class MessageBusImpl implements MessageBus {
 	private Map<MicroService, Pair<MicroService, Queue<Message>>> msMap = new ConcurrentHashMap<>();
 	private Map<Class<? extends Event>, LinkedList<Pair>> eventsMap = new ConcurrentHashMap<>();
 	private Map<Class<? extends Event>, Iterator<Pair>> robinPointer = new ConcurrentHashMap<>();
-	private Map<Class<? extends Broadcast>, LinkedList<MicroService>> broadcastsMap = new ConcurrentHashMap<>();
+	private Map<Class<? extends Broadcast>, LinkedList<Pair>> broadcastsMap = new ConcurrentHashMap<>();
 
 	private MessageBusImpl() { }
 
@@ -41,12 +41,13 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
+		Pair p= msMap.get(m);
 		if (broadcastsMap.get(type) == null){
 			broadcastsMap.put(type,new LinkedList<>());
-			broadcastsMap.get(type).add(m);
+			broadcastsMap.get(type).add(p);
 		}
 		else {
-			broadcastsMap.get(type).add(m);
+			broadcastsMap.get(type).add(p);
 		}
 
 	}
@@ -54,6 +55,7 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public void sendBroadcast(Broadcast b) {
 		LinkedList<MicroService> relevantMsList = broadcastsMap.get(b);
+		int x=6;
 
 
 	}
@@ -90,8 +92,11 @@ public class MessageBusImpl implements MessageBus {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	<T> void complete(Event<T> e, T result)
-	{}
+
+	@Override
+	public <T> void complete(Event<T> e, T result){
+
+	}
 
 	
 
