@@ -35,14 +35,12 @@ public class MessageBusImpl implements MessageBus {
 			robinPointer.put(type,eventsMap.get(type).iterator());
 		}
 		else{
-			if(!eventsMap.get(type).contains(p))
 			eventsMap.get(type).addLast(p);
 		}
 	}
 
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
-		Pair p= msMap.get(m);
 		if (broadcastsMap.get(type) == null){
 			broadcastsMap.put(type,new LinkedList<>());
 			broadcastsMap.get(type).add(p);
@@ -56,8 +54,7 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void sendBroadcast(Broadcast b) {
-		LinkedList<Pair> relevantMsList = broadcastsMap.get(b);
-		int x=6;
+		LinkedList<MicroService> relevantMsList = broadcastsMap.get(b);
 
 
 	}
@@ -99,11 +96,8 @@ public class MessageBusImpl implements MessageBus {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	@Override
-	public <T> void complete(Event<T> e, T result){
-
-	}
+	<T> void complete(Event<T> e, T result)
+	{}
 
 	private void nextInRobin(Class<? extends Event> type){
 
