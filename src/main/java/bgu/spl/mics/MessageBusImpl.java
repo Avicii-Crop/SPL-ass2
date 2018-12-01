@@ -15,8 +15,10 @@ public class MessageBusImpl implements MessageBus {
 
 	private Map<MicroService, Pair<MicroService, Queue<Pair<Message,Future>>>> msMap = new ConcurrentHashMap<>();
 	private Map<Class<? extends Event>, LinkedList<Pair>> eventsMap = new ConcurrentHashMap<>();
-	private Map<Class<? extends Event>, Iterator<Pair>> robinPointer = new ConcurrentHashMap<>();
+	private Map<Class<? extends Event>, ListIterator<Pair>> robinPointer = new ConcurrentHashMap<>();
 	private Map<Class<? extends Broadcast>, LinkedList<Pair>> broadcastsMap = new ConcurrentHashMap<>();
+	private Object lock1 = new Object();
+	private Object lock2 = new Object();
 
 	private MessageBusImpl() { }
 
@@ -32,7 +34,7 @@ public class MessageBusImpl implements MessageBus {
 		if (eventsMap.get(type) == null){
 			eventsMap.put(type,new LinkedList<>());
 			eventsMap.get(type).addLast(p);
-			robinPointer.put(type,eventsMap.get(type).iterator());
+			robinPointer.put(type,eventsMap.get(type).listIterator());
 		}
 		else{
 			if(!eventsMap.get(type).contains(p))
@@ -56,20 +58,25 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void sendBroadcast(Broadcast b) {
-		LinkedList<Pair> list = broadcastsMap.get(b);
-		for(Pair<MicroService, Queue<Pair<Message,Future>>> pair: list){
-			pair.getValue().add(new Pair(b,null));
+		synchronized (lock1){
+			LinkedList<Pair> list = broadcastsMap.get(b);
+			for(Pair<MicroService, Queue<Pair<Message,Future>>> pair: list) {
+				pair.getValue().add(new Pair(b, null));
+			}
 		}
 	}
 
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
-		Future<T> output=null;
-		if(eventsMap.get(e.getClass()) != null){
-			output = new Future<T>();
-
+		synchronized (lock2){
+			Future<T> output=null;
+			if(eventsMap.get(e.getClass()) != null){
+				output = new Future<T>();
+				Pair<MicroService, Queue<Pair<Message,Future>>> p =nextInRobin(e.getClass());
+				p.getValue().add(new Pair<>(e,output));
+			}
+			return output;
 		}
-		return output;
 	}
 
 	@Override
@@ -81,21 +88,36 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void unregister(MicroService m) {
+		synchronized ((lock1)){
+			synchronized (lock2){
+				Pair<MicroService, Queue<Pair<Message,Future>>> pair=msMap.get(m);
+				if(pair!= null) {
+					Queue<Pair<Message, Future>> q = pair.getValue();
+					Collection<LinkedList<Pair>> lists = eventsMap.values();    //Removing the ms pair from event list
+					Set<Class<? extends Event>> keys= eventsMap.keySet();
+					Iterator<Class<? extends Event>> it=keys.iterator();
+					Class<? extends Event> key;
+					Pair p2;
+					for (LinkedList<Pair> list : lists) {
+						key= it.next();
+						if(robinPointer.get(key).hasPrevious()) {
+							robinPointer.get(key).previous();
+							p2=robinPointer.get(key).next();
+						}
+						else
+							p2=eventsMap.get(key).getFirst();
+						if(list.remove(pair)){
 
-		Pair<MicroService, Queue<Pair<Message,Future>>> pair=msMap.get(m);
-		if(pair!= null) {
-			Queue<Pair<Message,Future>> q = pair.getValue();
-			Collection<LinkedList<Pair>> lists = eventsMap.values();	//Removing the ms pair from event list
-			for (LinkedList<Pair> list : lists)
-				list.remove(pair);
-			lists = broadcastsMap.values();								//Removing the ms pair from broadcast list
-			for (LinkedList<Pair> list : lists)
-				list.remove(pair);
+						}
 
+					}
+					lists = broadcastsMap.values();                                //Removing the ms pair from broadcast list
+					for (LinkedList<Pair> list : lists)
+						list.remove(pair);
 
+				}
+			}
 		}
-
-
 	}
 
 	@Override
@@ -109,9 +131,9 @@ public class MessageBusImpl implements MessageBus {
 
 	}
 
-	private Pair nextInRobin(Class<? extends Event> type){
+	private Pair<MicroService, Queue<Pair<Message,Future>>> nextInRobin(Class<? extends Event> type){
 		if(!robinPointer.get(type).hasNext())
-			robinPointer.replace(type,eventsMap.get(type).iterator());
+			robinPointer.replace(type,eventsMap.get(type).listIterator());
 		return robinPointer.get(type).next();
 	}
 	
