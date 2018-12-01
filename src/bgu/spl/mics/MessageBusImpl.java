@@ -1,7 +1,8 @@
 package bgu.spl.mics;
 import javafx.util.Pair;
-
 import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
@@ -16,8 +17,7 @@ public class MessageBusImpl implements MessageBus {
 	Map<MicroService, Pair<MicroService, Queue<Event>>> msMap = new ConcurrentHashMap<>();
 	Map<Class<? extends Event>, LinkedList<Pair>> eventsMap = new ConcurrentHashMap<>();
 	Map<Class<? extends Event>, Iterator<Pair>> robinPointer = new ConcurrentHashMap<>();
-	Map<Class<? extends Broad
-	cast>, LinkedList<MicroService>> broadcastsMap = new ConcurrentHashMap<>();
+	Map<Class<? extends Broadcast>, LinkedList<MicroService>> broadcastsMap = new ConcurrentHashMap<>();
 
 	private MessageBusImpl() { }
 
@@ -54,7 +54,8 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void sendBroadcast(Broadcast b) {
-		// TODO Auto-generated method stub              
+		LinkedList  broadcastsMap.get(b);
+
 
 	}
 
@@ -73,18 +74,13 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void unregister(MicroService m) {
-		//synchronized ();
+
 		Pair<MicroService, Queue<Event>> pair=msMap.get(m);
-		if(pair!= null){
-			Queue<Event> q= pair.getValue();
-			Collection<LinkedList<Pair>> lists=eventsMap.values();
-			for (LinkedList<Pair> list:lists)
+		if(pair!= null) {
+			Queue<Event> q = pair.getValue();
+			Collection<LinkedList<Pair>> lists = eventsMap.values();
+			for (LinkedList<Pair> list : lists)
 				list.remove(pair);
-
-
-
-
-
 		}
 
 
