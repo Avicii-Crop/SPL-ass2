@@ -97,7 +97,6 @@ public abstract class MicroService implements Runnable {
     protected final <T> Future<T> sendEvent(Event<T> e) {
         Future<T> output = bus.sendEvent(e);
 
-
         return output;
     }
     /**

@@ -1,37 +1,63 @@
 package bgu.spl.mics;
 
+import javafx.util.Pair;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * The {@link MessageBusImpl class is the implementation of the MessageBus interface.
  * Write your implementation here!
  * Only private fields and methods can be added to this class.
  */
 public class MessageBusImpl implements MessageBus {
+	private static MessageBusImpl instance = null;
 
+	Map<MicroService, Pair<MicroService, Queue<Message>>> msMap = new ConcurrentHashMap<>();
+	Map<Class<? extends Event>, LinkedList<Pair>> eventsMap = new ConcurrentHashMap<>();
+	Map<Class<? extends Event>, Iterator<Pair>> robinPointer = new ConcurrentHashMap<>();
+	Map<Class<? extends Broadcast>, LinkedList<MicroService>> broadcastsMap = new ConcurrentHashMap<>();
+
+	private MessageBusImpl() { }
+
+	public static MessageBusImpl getInstance() {
+		if(instance == null) {
+			instance = new MessageBusImpl();
+		}
+		return instance;
+	}
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
-		// TODO Auto-generated method stub
-
+		Pair p= msMap.get(m);
+		if (eventsMap.get(type) == null){
+			eventsMap.put(type,new LinkedList<>());
+			eventsMap.get(type).addLast(p);
+			robinPointer.put(type,eventsMap.get(type).iterator());
+		}
+		else{
+			eventsMap.get(type).addLast(p);
+		}
 	}
 
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public <T> void complete(Event<T> e, T result) {
-		// TODO Auto-generated method stub
+		if (broadcastsMap.get(type) == null){
+			broadcastsMap.put(type,new LinkedList<>());
+			broadcastsMap.get(type).add(m);
+		}
+		else {
+			broadcastsMap.get(type).add(m);
+		}
 
 	}
 
 	@Override
 	public void sendBroadcast(Broadcast b) {
-		// TODO Auto-generated method stub
+		LinkedList<MicroService> relevantMsList = broadcastsMap.get(b);
+
 
 	}
 
-	
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
 		// TODO Auto-generated method stub
@@ -40,13 +66,22 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void register(MicroService m) {
-		// TODO Auto-generated method stub
-
+		if (msMap.get(m) == null){
+			msMap.put(m, new Pair<>(m, new LinkedList<>()));
+		}
 	}
 
 	@Override
 	public void unregister(MicroService m) {
-		// TODO Auto-generated method stub
+
+		Pair<MicroService, Queue<Event>> pair=msMap.get(m);
+		if(pair!= null) {
+			Queue<Event> q = pair.getValue();
+			Collection<LinkedList<Pair>> lists = eventsMap.values();
+			for (LinkedList<Pair> list : lists)
+				list.remove(pair);
+		}
+
 
 	}
 

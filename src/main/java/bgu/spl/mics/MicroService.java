@@ -1,4 +1,5 @@
 package bgu.spl.mics;
+import java.util.LinkedList;
 
 /**
  * The MicroService is an abstract class that any micro-service in the system
@@ -7,14 +8,14 @@ package bgu.spl.mics;
  * <p>
  * Derived classes of MicroService should never directly touch the message-bus.
  * Instead, they have a set of internal protected wrapping methods (e.g.,
- * {@link #sendBroadcast(bgu.spl.mics.Broadcast)}, {@link #sendBroadcast(bgu.spl.mics.Broadcast)},
+ * {@link #sendBroadcast(Broadcast)}, {@link #sendBroadcast(Broadcast)},
  * etc.) they can use. When subscribing to message-types,
  * the derived class also supplies a {@link Callback} that should be called when
  * a message of the subscribed type was taken from the micro-service
- * message-queue (see {@link MessageBus#register(bgu.spl.mics.MicroService)}
+ * message-queue (see {@link MessageBus#register(MicroService)}
  * method). The abstract MicroService stores this callback together with the
  * type of the message is related to.
- * 
+ *
  * Only private fields and methods may be added to this class.
  * <p>
  */
@@ -22,6 +23,8 @@ public abstract class MicroService implements Runnable {
 
     private boolean terminated = false;
     private final String name;
+    private LinkedList<Event> subscribedBroadcasts = new LinkedList<>();
+    MessageBusImpl bus = MessageBusImpl.getInstance();
 
     /**
      * @param name the micro-service name (used mainly for debugging purposes -
@@ -30,7 +33,6 @@ public abstract class MicroService implements Runnable {
     public MicroService(String name) {
         this.name = name;
     }
-
     /**
      * Subscribes to events of type {@code type} with the callback
      * {@code callback}. This means two things:
@@ -41,7 +43,7 @@ public abstract class MicroService implements Runnable {
      * <p>
      * For a received message {@code m} of type {@code type = m.getClass()}
      * calling the callback {@code callback} means running the method
-     * {@link Callback#call(java.lang.Object)} by calling
+     * {@link Callback#call(Object)} by calling
      * {@code callback.call(m)}.
      * <p>
      * @param <E>      The type of event to subscribe to.
@@ -53,7 +55,7 @@ public abstract class MicroService implements Runnable {
      *                 queue.
      */
     protected final <T, E extends Event<T>> void subscribeEvent(Class<E> type, Callback<E> callback) {
-        //TODO: implement this.
+        bus.subscribeEvent(type,this);
     }
 
     /**
@@ -66,7 +68,7 @@ public abstract class MicroService implements Runnable {
      * <p>
      * For a received message {@code m} of type {@code type = m.getClass()}
      * calling the callback {@code callback} means running the method
-     * {@link Callback#call(java.lang.Object)} by calling
+     * {@link Callback#call(Object)} by calling
      * {@code callback.call(m)}.
      * <p>
      * @param <B>      The type of broadcast message to subscribe to
@@ -77,7 +79,7 @@ public abstract class MicroService implements Runnable {
      *                 queue.
      */
     protected final <B extends Broadcast> void subscribeBroadcast(Class<B> type, Callback<B> callback) {
-        //TODO: implement this.
+        bus.subscribeBroadcast(type,this);
     }
 
     /**
@@ -93,10 +95,10 @@ public abstract class MicroService implements Runnable {
      * 	       			null in case no micro-service has subscribed to {@code e.getClass()}.
      */
     protected final <T> Future<T> sendEvent(Event<T> e) {
-        //TODO: implement this.
-        return null; //TODO: delete this line :)
-    }
+        Future<T> output = bus.sendEvent(e);
 
+        return output;
+    }
     /**
      * A Micro-Service calls this method in order to send the broadcast message {@code b} using the message-bus
      * to all the services subscribed to it.
@@ -104,7 +106,7 @@ public abstract class MicroService implements Runnable {
      * @param b The broadcast message to send
      */
     protected final void sendBroadcast(Broadcast b) {
-        //TODO: implement this.
+        bus.sendBroadcast(b);
     }
 
     /**
@@ -150,7 +152,7 @@ public abstract class MicroService implements Runnable {
     public final void run() {
         initialize();
         while (!terminated) {
-            System.out.println("NOT IMPLEMENTED!!!"); //TODO: you should delete this line :)
+
         }
     }
 

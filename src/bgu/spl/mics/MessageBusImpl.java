@@ -14,7 +14,7 @@ import java.util.function.BiConsumer;
 public class MessageBusImpl implements MessageBus {
 	private static MessageBusImpl instance = null;
 
-	Map<MicroService, Pair<MicroService, Queue<Event>>> msMap = new ConcurrentHashMap<>();
+	Map<MicroService, Pair<MicroService, Queue<Message>>> msMap = new ConcurrentHashMap<>();
 	Map<Class<? extends Event>, LinkedList<Pair>> eventsMap = new ConcurrentHashMap<>();
 	Map<Class<? extends Event>, Iterator<Pair>> robinPointer = new ConcurrentHashMap<>();
 	Map<Class<? extends Broadcast>, LinkedList<MicroService>> broadcastsMap = new ConcurrentHashMap<>();
@@ -54,7 +54,7 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void sendBroadcast(Broadcast b) {
-		LinkedList<MicroService> relevantMs broadcastsMap.get(b);
+		LinkedList<MicroService> relevantMsList = broadcastsMap.get(b);
 
 
 	}
