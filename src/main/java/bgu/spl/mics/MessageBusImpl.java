@@ -74,7 +74,7 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public void unregister(MicroService m) {
 
-		Pair<MicroService, Queue<Event>> pair=msMap.get(m);
+		Pair<MicroService, Queue<Message>> pair=msMap.get(m);
 		if(pair!= null) {
 			Queue<Event> q = pair.getValue();
 			Collection<LinkedList<Pair>> lists = eventsMap.values();
