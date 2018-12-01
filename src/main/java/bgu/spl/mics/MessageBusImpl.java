@@ -43,24 +43,26 @@ public class MessageBusImpl implements MessageBus {
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
 		if (broadcastsMap.get(type) == null){
 			broadcastsMap.put(type,new LinkedList<>());
-			broadcastsMap.get(type).add(m);
+			broadcastsMap.get(type).add(p);
 		}
 		else {
-			broadcastsMap.get(type).add(m);
+			if(!broadcastsMap.get(type).contains(p))
+				broadcastsMap.get(type).add(p);
 		}
+
 	}
 
 	@Override
 	public void sendBroadcast(Broadcast b) {
-		LinkedList<Pair> list = broadcastsMap.get(b);
-		for (Pair<MicroService,Queue<Message>> pair: list) {
-			pair.getValue().add(b);
-		}
-		}
+		LinkedList<MicroService> relevantMsList = broadcastsMap.get(b);
+
+
+	}
 
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
-	    
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
@@ -72,12 +74,14 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void unregister(MicroService m) {
-		Pair<MicroService, Queue<Message>> pair=msMap.get(m);
+
+		Pair<MicroService, Queue<Event>> pair=msMap.get(m);
 		if(pair!= null) {
 			Queue<Message> q = pair.getValue();
 			Collection<LinkedList<Pair>> lists = eventsMap.values();
 			for (LinkedList<Pair> list : lists)
 				list.remove(pair);
+
 		}
 
 
@@ -88,8 +92,7 @@ public class MessageBusImpl implements MessageBus {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	@Override
-	public <T> void complete(Event<T> e, T result)
+	<T> void complete(Event<T> e, T result)
 	{}
 
 	
