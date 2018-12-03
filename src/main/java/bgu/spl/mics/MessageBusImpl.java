@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class MessageBusImpl implements MessageBus {
 	private static MessageBusImpl instance = null;
 
-	private Map<MicroService, Pair<MicroService, Queue<Pair<Message,Future>>>> msMap = new ConcurrentHashMap<>();
+	private Map<MicroService, Queue<Message,Future>>> msMap = new ConcurrentHashMap<>();
 	private Map<Class<? extends Event>, LinkedList<Pair>> eventsMap = new ConcurrentHashMap<>();
 	private Map<Class<? extends Event>, ListIterator<Pair>> robinPointer = new ConcurrentHashMap<>();
 	private Map<Class<? extends Broadcast>, LinkedList<Pair>> broadcastsMap = new ConcurrentHashMap<>();
