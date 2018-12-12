@@ -145,13 +145,13 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public Message awaitMessage(MicroService m) throws InterruptedException {
-		// TODO Auto-generated method stub
-		return null;
+		return msMap.get(m).take();
 	}
 
 	@Override
 	public <T> void complete(Event<T> e, T result){
-
+		futureList.get(e).resolve(result);
+		futureList.get(e).isDone();
 	}
 
 	private LinkedBlockingQueue<Message> nextInRobin(Class<? extends Event> type){
