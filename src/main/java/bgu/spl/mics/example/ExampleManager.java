@@ -1,4 +1,4 @@
-package main.java.bgu.spl.mics.example;
+package bgu.spl.mics.example;
 
 import bgu.spl.mics.example.services.ExampleBroadcastListenerService;
 import bgu.spl.mics.example.services.ExampleMessageSenderService;

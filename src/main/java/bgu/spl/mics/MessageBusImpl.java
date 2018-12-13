@@ -60,10 +60,12 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public void sendBroadcast(Broadcast b) {
 
-			Vector<LinkedBlockingQueue<Message>> v = broadcastsMap.get(b);
+			Vector<LinkedBlockingQueue<Message>> v = broadcastsMap.get(b.getClass());
+//			for(int i=0;i<v.size();i++)
 			for(LinkedBlockingQueue<Message> q: v) {
 				try {
 					q.put(b);
+//					v.get(i).put(b);
 				}
 				catch(NullPointerException |InterruptedException ex){}
 
