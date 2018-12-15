@@ -21,7 +21,6 @@ public class MessageBusImpl implements MessageBus {
 	private Map<Event, Future> futureList = new ConcurrentHashMap<>();
 	Object iteratorLock = new Object();
 	Object robinLock=new Object();
-	Object instanceLock=new Object();
 
 	private MessageBusImpl() { }
 
@@ -67,8 +66,6 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public void sendBroadcast(Broadcast b) {
 			synchronized (iteratorLock) {
-
-//			for(int i=0;i<v.size();i++)
 					while (broadcastsMap.get(b.getClass())==null){
 						try {
 							iteratorLock.wait();
@@ -80,7 +77,6 @@ public class MessageBusImpl implements MessageBus {
 				for (LinkedBlockingQueue<Message> q : v) {
 					try {
 						q.put(b);
-//					v.get(i).put(b);
 					} catch (NullPointerException | InterruptedException ex) {
 					}
 
