@@ -3,7 +3,12 @@ package bgu.spl.mics.application.passiveObjects;
 
 import org.omg.PortableInterceptor.SUCCESSFUL;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -91,6 +96,21 @@ public class Inventory {
      * This method is called by the main method in order to generate the output.
      */
 	public void printInventoryToFile(String filename){
-		//TODO: Implement this
+		Map<String,Integer> output=new HashMap<>();
+		Set<String> keys=stoke.keySet();
+		for(String book:keys){
+			output.put(book,stoke.get(book).getAmountInInventory());
+		}
+		try
+		{
+			FileOutputStream fos =new FileOutputStream(filename);
+			ObjectOutputStream oos = new ObjectOutputStream(fos);
+			oos.writeObject(output);
+			oos.close();
+			fos.close();
+		}catch(IOException ioe)
+		{
+			ioe.printStackTrace();
+		}
 	}
 }
