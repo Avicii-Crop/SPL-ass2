@@ -74,7 +74,11 @@ public class Inventory {
      * @return the price of the book if it is available, -1 otherwise.
      */
 	public int checkAvailabiltyAndGetPrice(String book) {
-		//TODO: Implement this
+		BookInventoryInfo b=stoke.get(book);
+		if(b!=null){
+			if(b.getAmountInInventory()>0)
+				return b.getPrice();
+		}
 		return -1;
 	}
 	
