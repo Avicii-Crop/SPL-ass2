@@ -153,7 +153,6 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public <T> void complete(Event<T> e, T result){
 		futureList.get(e).resolve(result);
-		futureList.get(e).isDone();
 	}
 
 	private LinkedBlockingQueue<Message> nextInRobin(Class<? extends Event> type){
