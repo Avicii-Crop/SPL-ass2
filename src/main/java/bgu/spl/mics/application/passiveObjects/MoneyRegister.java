@@ -43,10 +43,10 @@ public class MoneyRegister {
      */
 	public int getTotalEarnings() {
 		int totalEarnings = 0;
-		for (List<OrderReceipt> receipt : this.receiptsList) {
-			totalEarnings += receipt
+		for (OrderReceipt receipt : this.receiptsList) {
+			totalEarnings =+ receipt.getPrice();
 		}
-		return 0;
+		return totalEarnings;
 	}
 	
 	/**
@@ -55,7 +55,7 @@ public class MoneyRegister {
      * @param amount 	amount to charge
      */
 	public void chargeCreditCard(Customer c, int amount) {
-		// TODO Implement this
+
 	}
 	
 	/**
@@ -64,6 +64,6 @@ public class MoneyRegister {
      * This method is called by the main method in order to generate the output.. 
      */
 	public void printOrderReceipts(String filename) {
-		//TODO: Implement this
+
 	}
 }

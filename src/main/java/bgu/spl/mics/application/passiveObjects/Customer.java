@@ -9,37 +9,46 @@ import java.util.List;
  * You may add fields and methods to this class as you see fit (including public methods).
  */
 public class Customer {
+	private String name;
+	private int id;
+	private String address;
+	private int distance;
+	private List<OrderReceipt> receipts;
+	private int creditCard;
+	private int availableAmountInCreditCard;
 
 	/**
      * Retrieves the name of the customer.
      */
+
+	public Customer(String name, int id){
+		this.id = id;
+		this.name = name;
+
+	}
 	public String getName() {
-		// TODO Implement this
-		return null;
+		return name;
 	}
 
 	/**
      * Retrieves the ID of the customer  . 
      */
 	public int getId() {
-		// TODO Implement this
-		return 0;
+		return id;
 	}
 	
 	/**
      * Retrieves the address of the customer.  
      */
 	public String getAddress() {
-		// TODO Implement this
-		return null;
+		return address;
 	}
 	
 	/**
      * Retrieves the distance of the customer from the store.  
      */
 	public int getDistance() {
-		// TODO Implement this
-		return 0;
+		return distance;
 	}
 
 	
@@ -49,8 +58,7 @@ public class Customer {
      * @return A list of receipts.
      */
 	public List<OrderReceipt> getCustomerReceiptList() {
-		// TODO Implement this
-		return null;
+		return receipts;
 	}
 	
 	/**
@@ -59,8 +67,7 @@ public class Customer {
      * @return Amount of money left.   
      */
 	public int getAvailableCreditAmount() {
-		// TODO Implement this
-		return 0;
+		return availableAmountInCreditCard;
 	}
 	
 	/**
