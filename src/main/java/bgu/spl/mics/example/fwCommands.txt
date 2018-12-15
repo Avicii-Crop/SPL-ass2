@@ -15,6 +15,7 @@ start sender sender3 event
 
 start sender sender4 broadcast
 
-start sender sender5
+start sender sender5 event
+
 
 quit

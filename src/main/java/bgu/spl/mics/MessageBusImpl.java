@@ -19,13 +19,20 @@ public class MessageBusImpl implements MessageBus {
 	private Map<Class<? extends Event>, Integer> robinPointer = new ConcurrentHashMap<>();
 	private Map<Class<? extends Broadcast>, Vector<LinkedBlockingQueue<Message>>> broadcastsMap = new ConcurrentHashMap<>();
 	private Map<Event, Future> futureList = new ConcurrentHashMap<>();
-
+	Object iteratorLock = new Object();
+	Object robinLock=new Object();
+	Object instanceLock=new Object();
 
 	private MessageBusImpl() { }
 
 	public static MessageBusImpl getInstance() {
 		if(instance == null) {
-			instance = new MessageBusImpl();
+			synchronized (MessageBusImpl.class){
+				if(instance==null){
+					MessageBusImpl tmp= new MessageBusImpl();
+					instance = tmp;
+				}
+			}
 		}
 		return instance;
 	}
@@ -45,32 +52,40 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
-		LinkedBlockingQueue<Message> q= msMap.get(m);
-		if (broadcastsMap.get(type) == null){
-			broadcastsMap.put(type,new Vector<LinkedBlockingQueue<Message>>());
-			broadcastsMap.get(type).add(q);
-		}
-		else {
-			if(!broadcastsMap.get(type).contains(q))
+		synchronized (iteratorLock) {
+			LinkedBlockingQueue<Message> q = msMap.get(m);
+			if (broadcastsMap.get(type) == null) {
+				broadcastsMap.put(type, new Vector<LinkedBlockingQueue<Message>>());
 				broadcastsMap.get(type).add(q);
+			} else {
+				if (!broadcastsMap.get(type).contains(q))
+					broadcastsMap.get(type).add(q);
+			}
 		}
-
 	}
 
 	@Override
 	public void sendBroadcast(Broadcast b) {
+			synchronized (iteratorLock) {
 
-			Vector<LinkedBlockingQueue<Message>> v = broadcastsMap.get(b.getClass());
 //			for(int i=0;i<v.size();i++)
-			for(LinkedBlockingQueue<Message> q: v) {
-				try {
-					q.put(b);
-//					v.get(i).put(b);
+					while (broadcastsMap.get(b.getClass())==null){
+						try {
+							iteratorLock.wait();
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 				}
-				catch(NullPointerException |InterruptedException ex){}
+				Vector<LinkedBlockingQueue<Message>> v = broadcastsMap.get(b.getClass());
+				for (LinkedBlockingQueue<Message> q : v) {
+					try {
+						q.put(b);
+//					v.get(i).put(b);
+					} catch (NullPointerException | InterruptedException ex) {
+					}
 
+				}
 			}
-
 	}
 
 	@Override
@@ -78,12 +93,14 @@ public class MessageBusImpl implements MessageBus {
 			Future<T> output=null;
 			if(eventsMap.get(e.getClass()) != null){
 				output = new Future<T>();
-				LinkedBlockingQueue<Message> q =nextInRobin(e.getClass());
-				try {
-					q.put(e);
-				}
-				catch(NullPointerException |InterruptedException ex){}
+				synchronized (robinLock) {
+					LinkedBlockingQueue<Message> q = nextInRobin(e.getClass());
 
+					try {
+						q.put(e);
+					} catch (NullPointerException | InterruptedException ex) {
+					}
+				}
 				futureList.put(e,output);
 
 			}
@@ -99,51 +116,22 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void unregister(MicroService m) {
-				Queue<Message> q=msMap.get(m);
+				LinkedBlockingQueue<Message> q=msMap.get(m);
 				if(q!= null) {
-					//Collection<Vector<LinkedBlockingQueue<Message>>> lists = eventsMap.values();    //Removing the ms pair from event list
-					Set<Class<? extends Event>> keys= eventsMap.keySet();
-					Iterator<Class<? extends Event>> it=keys.iterator();
-					Class<? extends Event> key;
-					int index;
-					while(it.hasNext()){
-						key=it.next();
-						 index=eventsMap.get(key).indexOf(q);
-						if(index!=-1){
-							eventsMap.get(key).remove(index);
-							if(robinPointer.get(key)==index){
-								robinPointer.replace(key,(index-1));
-							}
+					removeFromEventsMap(q);
+					removeFromBroadcastMap(q);
+					while (!q.isEmpty()){
+						Message msg=q.poll();
+						if(Event.class.isAssignableFrom(msg.getClass())){
+							complete((Event)msg,null);
 						}
 					}
-
-//					Queue<Message> tmpQ;
-//					Class<? extends Event> tmpEvent;
-//
-//					for (Message msg : q) {
-//						if(msg.getClass().isA(<? extends Event>.class)){
-//							tmpQ =nextInRobin(msg.getClass());
-//						}
-//
-//						key= it.next();
-//						if(robinPointer.get(key).hasPrevious()) {
-//							robinPointer.get(key).previous();
-//							p2=robinPointer.).next();
-//						}
-//						else
-//							p2=eventsMap.get(key).getFirst();
-//						if(list.remove(pair)){
-//
-//						}
-//
-//					}
-//					lists = broadcastsMap.values();                                //Removing the ms pair from broadcast list
-//					for (LinkedList<Pair> list : lists)
-//						list.remove(pair);
 
 				}
 
 	}
+
+
 
 	@Override
 	public Message awaitMessage(MicroService m) throws InterruptedException {
@@ -152,6 +140,14 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public <T> void complete(Event<T> e, T result){
+		synchronized (this){
+		while (futureList.get(e)==null){
+			try {
+				wait();
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
+		}}
 		futureList.get(e).resolve(result);
 	}
 
@@ -163,6 +159,39 @@ public class MessageBusImpl implements MessageBus {
 			p++;
 		return eventsMap.get(type).elementAt(p);
 	}
-	
 
+	private void removeFromEventsMap(LinkedBlockingQueue<Message> q){
+		Set<Class<? extends Event>> keys= eventsMap.keySet();
+		Iterator<Class<? extends Event>> it=keys.iterator();
+		Class<? extends Event> key;
+		int index;
+		while(it.hasNext()){
+			key=it.next();
+			index=eventsMap.get(key).indexOf(q);
+			synchronized (robinLock) {
+				if (index != -1) {
+					eventsMap.get(key).remove(index);
+					if (robinPointer.get(key) == index) {
+						if(index==0)
+							robinPointer.replace(key, eventsMap.get(key).size()-1);
+						else
+							robinPointer.replace(key, (index - 1));
+					}
+				}
+			}
+		}
+	}
+
+	private void removeFromBroadcastMap(LinkedBlockingQueue<Message> q) {
+		synchronized (iteratorLock) {
+			Set<Class<? extends Broadcast>> keys = broadcastsMap.keySet();
+			Iterator<Class<? extends Broadcast>> it = keys.iterator();
+			Class<? extends Broadcast> key;
+			int index;
+			while (it.hasNext()) {
+				key = it.next();
+				broadcastsMap.get(key).remove(q);
+			}
+		}
+	}
 }
