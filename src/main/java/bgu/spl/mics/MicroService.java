@@ -100,7 +100,6 @@ public abstract class MicroService implements Runnable {
      */
     protected final <T> Future<T> sendEvent(Event<T> e) {
         Future<T> output = bus.sendEvent(e);
-
         return output;
     }
     /**
@@ -124,7 +123,7 @@ public abstract class MicroService implements Runnable {
      *               {@code e}.
      */
     protected final <T> void complete(Event<T> e, T result) {
-        //TODO: implement this.
+        bus.complete(e,result);
     }
 
     /**
@@ -159,7 +158,8 @@ public abstract class MicroService implements Runnable {
         while (!terminated) {
             try {
                 Message msg = bus.awaitMessage(this);
-                callbackMap.get(msg.getClass()).call(msg);
+                    callbackMap.get(msg.getClass()).call(msg);
+
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
