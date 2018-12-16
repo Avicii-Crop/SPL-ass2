@@ -17,10 +17,9 @@ import java.util.concurrent.Semaphore;
  */
 public class ResourcesHolder {
 	private static ResourcesHolder resourcesHolder=null;
-	private Vector<DeliveryVehicle> vehicles;
-	private boolean[] available;
-	private final Object acquireLock=new Object();
+	private Semaphore sem;
 	private LinkedBlockingQueue<Future<DeliveryVehicle>> requestsQueue=new LinkedBlockingQueue<>();
+	private LinkedBlockingQueue<DeliveryVehicle> vehiclesQueue=new LinkedBlockingQueue<>();
 	
 	/**
      * Retrieves the single instance of this class.
@@ -48,7 +47,8 @@ public class ResourcesHolder {
 	public Future<DeliveryVehicle> acquireVehicle() {
 		Future<DeliveryVehicle> output=new Future<>();
 		requestsQueue.offer(output);
-		acquire();
+		if (sem.tryAcquire())
+			getVehicle();
 		return output;
 	}
 
@@ -60,30 +60,36 @@ public class ResourcesHolder {
      * @param vehicle	{@link DeliveryVehicle} to be released.
      */
 	public void releaseVehicle(DeliveryVehicle vehicle) {
-		synchronized (acquireLock){
-			int index=vehicles.indexOf(vehicle);
-			available[index]=true;
-			acquireLock.notifyAll();
+		vehiclesQueue.offer(vehicle);
+		sem.release();
+		try {
+			sem.acquire();
+			getVehicle();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
-
 	}
 
-	 private boolean acquire() {
-		boolean found = false;
-		synchronized (acquireLock) {
-			for (int i = 0; i < available.length && !found; i++) {
-				if (available[i]) {
-					available[i] = false;
-					found = true;
-					try {
-						requestsQueue.take().resolve(vehicles.elementAt(i));
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
+	/**
+	 * This method is called only after a semaphore's permit
+	 * is acquired. the only scenario for this method to fail is if there isn't
+	 * any request waiting, in this case the permit will be release.
+	 * @return true if managed to acquire vehicle and false otherwise.
+	 */
+	 private boolean getVehicle() {
+		boolean acquired = false;
+		Future<DeliveryVehicle> f=requestsQueue.poll();
+		if (f!=null) {
+			try {
+				f.resolve(vehiclesQueue.take());
+				acquired = true;
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
 		}
-		 return found;
+		if(!acquired)
+			sem.release();
+		return acquired;
 	 }
 
 	/**
@@ -92,12 +98,11 @@ public class ResourcesHolder {
      * @param vehicles	Array of {@link DeliveryVehicle} instances to store.
      */
 	public void load(DeliveryVehicle[] vehicles) {
-		this.vehicles= new Vector<DeliveryVehicle>();
-		available=new boolean[vehicles.length];
+
 		for(int i=0;i<vehicles.length;i++){
-			this.vehicles.add(new DeliveryVehicle(vehicles[i].getLicense(),vehicles[i].getSpeed()));
-			available[i]=true;
+			vehiclesQueue.offer(vehicles[i]);
 		}
+		sem=new Semaphore(vehicles.length,true);
 	}
 
 }

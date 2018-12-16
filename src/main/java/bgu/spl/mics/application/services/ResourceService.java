@@ -1,5 +1,5 @@
 package bgu.spl.mics.application.services;
-
+// Avishai
 import bgu.spl.mics.MicroService;
 
 /**
@@ -14,7 +14,7 @@ import bgu.spl.mics.MicroService;
 public class ResourceService extends MicroService{
 
 	public ResourceService() {
-		super("Change_This_Name");
+		super("resource");
 		// TODO Implement this
 	}
 
