@@ -1,7 +1,11 @@
 package bgu.spl.mics.application.passiveObjects;
 
-
+import java.util.ArrayList;
 import java.util.List;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 /**
  * Passive object representing the store finance management. 
@@ -12,7 +16,8 @@ import java.util.List;
  * <p>
  * You can add ONLY private fields and methods to this class as you see fit.
  */
-public class MoneyRegister {
+public class MoneyRegister implements Serializable {
+
 	private static MoneyRegister instance = null;
 	private List<OrderReceipt> receiptsList;
 	/**
@@ -55,7 +60,7 @@ public class MoneyRegister {
      * @param amount 	amount to charge
      */
 	public void chargeCreditCard(Customer c, int amount) {
-
+		c.setAvailableCreditAmount(c.getCreditNumber() - amount);
 	}
 	
 	/**
@@ -64,6 +69,18 @@ public class MoneyRegister {
      * This method is called by the main method in order to generate the output.. 
      */
 	public void printOrderReceipts(String filename) {
-
+		ArrayList<OrderReceipt> output=new ArrayList<OrderReceipt>();
+		for (OrderReceipt receipt: receiptsList) {
+			output.add(receipt);
+		}
+		try{
+			FileOutputStream fos= new FileOutputStream(filename);
+			ObjectOutputStream oos= new ObjectOutputStream(fos);
+			oos.writeObject(output);
+			oos.close();
+			fos.close();
+		}catch(IOException ioe){
+			ioe.printStackTrace();
+		}
 	}
 }

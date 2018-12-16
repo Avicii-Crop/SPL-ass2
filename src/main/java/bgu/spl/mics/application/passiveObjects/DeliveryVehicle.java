@@ -43,5 +43,6 @@ public class DeliveryVehicle {
 		try {
 			Thread.sleep((distance*getSpeed()));
 		} catch (InterruptedException e1) {}
+
 	}
 }

@@ -4,9 +4,9 @@ import java.util.List;
 
 /**
  * Passive data-object representing a customer of the store.
- * You must not alter any of the given public methods of this class.
- * <p>
- * You may add fields and methods to this class as you see fit (including public methods).
+ *  * You must not alter any of the given public methods of this class.
+ *  * <p>
+ * You may add fields and methods 	to this class as you see fit (including public methods).
  */
 public class Customer {
 	private String name;
@@ -21,9 +21,13 @@ public class Customer {
      * Retrieves the name of the customer.
      */
 
-	public Customer(String name, int id){
+	public Customer(String name, int id, String address, int distance , int creditCard, int availableAmountInCreditCard){
 		this.id = id;
 		this.name = name;
+		this.creditCard = creditCard;
+		this.availableAmountInCreditCard = availableAmountInCreditCard;
+		this.address = address;
+		this.distance = distance;
 
 	}
 	public String getName() {
@@ -69,13 +73,17 @@ public class Customer {
 	public int getAvailableCreditAmount() {
 		return availableAmountInCreditCard;
 	}
+
+	public void setAvailableCreditAmount(int availableCreditAmount) {
+		this.availableAmountInCreditCard = availableCreditAmount;
+	}
 	
 	/**
      * Retrieves this customers credit card serial number.    
      */
 	public int getCreditNumber() {
-		// TODO Implement this
-		return 0;
+
+		return creditCard;
 	}
 	
 }
