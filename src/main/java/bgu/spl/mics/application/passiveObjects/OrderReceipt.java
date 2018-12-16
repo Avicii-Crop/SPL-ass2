@@ -1,28 +1,40 @@
 package bgu.spl.mics.application.passiveObjects;
 
-/**
- * Passive data-object representing a receipt that should 
- * be sent to a customer after the completion of a BookOrderEvent.
- * You must not alter any of the given public methods of this class.
- * <p>
- * You may add fields and methods to this class as you see fit (including public methods).
- */
-public class OrderReceipt {
-	
+import java.io.Serializable;
+
+	/**
+	 * Passive data-object representing a receipt that should
+	 * be sent to a customer after the completion of a BookOrderEvent.
+	 * You must not alter any of the given public methods of this class.
+	 * <p>
+	 * You may add fields and methods to this class as you see fit (including public methods).
+	 */
+	public class OrderReceipt implements Serializable {
+		private int orderId;
+		private String seller;
+		private int customer;
+		private String bookTitle;
+		private int price;
+		private int orderTick;
+		private int issuedTick;
+	private int proccessTick;
+
+	public OrderReceipt(int orderId, String seller, int customer, String bookTitle, int price, int orderTick, int issuedTick, int proccessTick) {
+
+	}
+
 	/**
      * Retrieves the orderId of this receipt.
      */
 	public int getOrderId() {
-		// TODO Implement this
-		return 0;
+		return orderId;
 	}
 	
 	/**
      * Retrieves the name of the selling service which handled the order.
      */
 	public String getSeller() {
-		// TODO Implement this
-		return null;
+		return seller;
 	}
 	
 	/**
@@ -31,40 +43,35 @@ public class OrderReceipt {
      * @return the ID of the customer
      */
 	public int getCustomerId() {
-		// TODO Implement this
-		return 0;
+		return customer;
 	}
 	
 	/**
      * Retrieves the name of the book which was bought.
      */
 	public String getBookTitle() {
-		// TODO Implement this
-		return null;
+		return bookTitle;
 	}
 	
 	/**
      * Retrieves the price the customer paid for the book.
      */
 	public int getPrice() {
-		// TODO Implement this
-		return 0;
+		return price;
 	}
 	
 	/**
      * Retrieves the tick in which this receipt was issued.
      */
 	public int getIssuedTick() {
-		// TODO Implement this
-		return 0;
+		return  issuedTick;
 	}
 	
 	/**
      * Retrieves the tick in which the customer sent the purchase request.
      */
 	public int getOrderTick() {
-		// TODO Implement this
-		return 0;
+		return orderTick;
 	}
 	
 	/**
@@ -72,7 +79,6 @@ public class OrderReceipt {
      * processing the order.
      */
 	public int getProcessTick() {
-		// TODO Implement this
-		return 0;
+		return proccessTick;
 	}
 }
