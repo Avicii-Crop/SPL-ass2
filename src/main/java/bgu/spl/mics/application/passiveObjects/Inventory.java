@@ -63,9 +63,12 @@ public class Inventory {
      */
 	public OrderResult take (String book) {
 		BookInventoryInfo b=stoke.get(book);
-		if(b!=null){
-			if(b.takeBook())
-				return OrderResult.SUCCESSFULLY_TAKEN;
+		if (b != null){
+			synchronized (b) {
+				if (b.takeBook())
+					return OrderResult.SUCCESSFULLY_TAKEN;
+			}
+
 		}
 		return OrderResult.NOT_IN_STOCK;
 	}
