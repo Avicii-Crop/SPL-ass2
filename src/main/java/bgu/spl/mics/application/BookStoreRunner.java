@@ -175,7 +175,7 @@ public class BookStoreRunner {
             }
         }
 
-        public class OrderSchedule{
+        public class OrderSchedule implements Comparable<OrderSchedule>{
             private String bookTitle;
             private int tick;
 
@@ -190,6 +190,15 @@ public class BookStoreRunner {
 
             public String getBookTitle() {
                 return bookTitle;
+            }
+
+            public void setBookTitle(String bookTitle) {
+                this.bookTitle = bookTitle;
+            }
+
+            @Override
+            public int compareTo(OrderSchedule o) {
+                return this.tick-o.getTick();
             }
         }
 
