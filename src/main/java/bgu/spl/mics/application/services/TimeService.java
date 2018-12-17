@@ -16,8 +16,7 @@ import bgu.spl.mics.application.messages.TickBroadcast;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class TimeService extends MicroService {
-
-	int x;
+	
 	private int speed;
 	private int duration;
 
