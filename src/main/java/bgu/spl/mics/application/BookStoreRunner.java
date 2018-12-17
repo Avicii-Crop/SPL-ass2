@@ -117,7 +117,7 @@ public class BookStoreRunner {
                 private String address;
                 private int distance;
                 private CreditCard creditCard;
-                private OrderSchedule orderSchedule;
+                private OrderSchedule[] orderSchedule;
 
                 /**
                  * Initialize Customer object.
