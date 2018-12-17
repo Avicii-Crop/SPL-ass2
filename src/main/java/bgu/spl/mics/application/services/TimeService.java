@@ -17,6 +17,7 @@ import bgu.spl.mics.application.messages.TickBroadcast;
  */
 public class TimeService extends MicroService {
 
+	int x;
 	private int speed;
 	private int duration;
 
