@@ -1,6 +1,9 @@
 package bgu.spl.mics.application.messages;
+
+import bgu.spl.mics.Broadcast;
+
 //Ofek
-public class TickBroadcast {
+public class TickBroadcast implements Broadcast {
 
     private int currentTick;
 
