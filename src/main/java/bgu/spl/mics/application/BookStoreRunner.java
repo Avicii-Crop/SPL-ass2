@@ -111,99 +111,102 @@ public class BookStoreRunner {
                 return selling;
             }
 
-            public class InitCustomer{
-                private int id;
-                private String name;
-                private String address;
-                private int distance;
-                private CreditCard creditCard;
-                private OrderSchedule[] orderSchedule;
 
-                /**
-                 * Initialize Customer object.
-                 * @return Customer object
-                 */
-                public Customer getCustomer(){
+        }
+        public class InitCustomer{
+            private int id;
+            private String name;
+            private String address;
+            private int distance;
+            private CreditCard creditCard;
+            private OrderSchedule[] orderSchedule;
+
+            /**
+             * Initialize Customer object.
+             * @return Customer object
+             */
+            public Customer getCustomer(){
                 return new Customer(name,id, address,distance,creditCard.getNumber(),creditCard.getAmount());
-                }
-
-                public int getDistance() {
-                    return distance;
-                }
-
-                public int getId() {
-                    return id;
-                }
-
-                public CreditCard getCreditCard() {
-                    return creditCard;
-                }
-
-                public OrderSchedule[] getOrderSchedule() {
-                    return orderSchedule;
-                }
-
-                public String getAddress() {
-                    return address;
-                }
-
-                public String getName() {
-                    return name;
-                }
-
-
-                public class CreditCard{
-                    private int number;
-                    private int amount;
-
-                    public CreditCard(int number,int amount){
-                        this.number=number;
-                        this.amount=amount;
-                    }
-
-                    public int getAmount() {
-                        return amount;
-                    }
-
-                    public int getNumber() {
-                        return number;
-                    }
-                }
-
-                public class OrderSchedule{
-                    private String bookTitle;
-                    private int tick;
-
-                    public OrderSchedule(String bookTitle,int tick){
-                        this.bookTitle=bookTitle;
-                        this.tick=tick;
-                    }
-
-                    public int getTick() {
-                        return tick;
-                    }
-
-                    public String getBookTitle() {
-                        return bookTitle;
-                    }
-                }
             }
 
-            public class InitTime{
-                private int speed;
-                private int duration;
-
-                public InitTime(int speed,int duration){
-                    this.speed=speed;
-                    this.duration=duration;
-                }
-
-                public int getSpeed(){return speed;}
-
-                public int getDuration(){return duration;}
-
-
+            public int getDistance() {
+                return distance;
             }
+
+            public int getId() {
+                return id;
+            }
+
+            public CreditCard getCreditCard() {
+                return creditCard;
+            }
+
+            public OrderSchedule[] getOrderSchedule() {
+                return orderSchedule;
+            }
+
+            public String getAddress() {
+                return address;
+            }
+
+            public String getName() {
+                return name;
+            }
+
+
+
+        }
+
+        public class CreditCard{
+            private int number;
+            private int amount;
+
+            public CreditCard(int number,int amount){
+                this.number=number;
+                this.amount=amount;
+            }
+
+            public int getAmount() {
+                return amount;
+            }
+
+            public int getNumber() {
+                return number;
+            }
+        }
+
+        public class OrderSchedule{
+            private String bookTitle;
+            private int tick;
+
+            public OrderSchedule(String bookTitle,int tick){
+                this.bookTitle=bookTitle;
+                this.tick=tick;
+            }
+
+            public int getTick() {
+                return tick;
+            }
+
+            public String getBookTitle() {
+                return bookTitle;
+            }
+        }
+
+        public class InitTime{
+            private int speed;
+            private int duration;
+
+            public InitTime(int speed,int duration){
+                this.speed=speed;
+                this.duration=duration;
+            }
+
+            public int getSpeed(){return speed;}
+
+            public int getDuration(){return duration;}
+
+
         }
     }
 
