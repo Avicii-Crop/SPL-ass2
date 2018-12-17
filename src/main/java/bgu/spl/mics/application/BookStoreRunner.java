@@ -139,7 +139,7 @@ public class BookStoreRunner {
                     return creditCard;
                 }
 
-                public OrderSchedule getOrderSchedule() {
+                public OrderSchedule[] getOrderSchedule() {
                     return orderSchedule;
                 }
 
